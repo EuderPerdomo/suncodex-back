@@ -31,7 +31,6 @@ const registro_blog_admin = async function (req, res) {
                 const { secure_url } = await cloudinary.uploader.upload(img_path, {
                     folder: 'CuteMakeup'
                 })
-
                 data.portada = secure_url;
                 let reg = await Blog.create(data);
                 if (arr_etiquetas.length >= 1) {
@@ -175,7 +174,6 @@ const actualizar_blog_admin = async function (req, res) {
 
 //Obtiene un solo Post
 const obtener_post_public = async function (req, res) {
-    console.log('Llego a aobtener post Public', req.params['slug'])
     var slug = req.params['slug'];
     try {
         var reg = await Blog.findOne({ slug: slug }).populate('categoria');
@@ -301,6 +299,92 @@ const listar_etiquetas_post_guest = async function (req, res) {
     }
 }
 
+//Obtener las eqtiquetas de un POST especifico
+const listar_tags_post_guest = async function (req, res) {
+        var id = req.params['id'];
+        var etiquetas = await PostEtiquetaRelacion.find({ blog: id }).populate('etiqueta');
+        res.status(200).send({ data: etiquetas });
+ 
+}
+
+const obtener_posts_adyacentes_guest = async function(req, res) {
+    
+    try {
+        const id = req.params['id'];
+        const categoria = req.params['categoria'];
+        // 1. Encontrar el post actual para obtener su fecha de creación
+        const postActual = await Blog.findOne({ _id: id, categoria: categoria });
+        if (!postActual) {
+            return res.status(404).send({ message: "Post no encontrado" });
+        }
+
+        // 2. Consultar el post ANTERIOR (misma categoría, fecha de creación MENOR)
+        const postAnterior = await Blog.findOne({
+            categoria: categoria,
+            createdAt: { $lt: postActual.createdAt } // Posts más antiguos
+        })
+        .sort({ createdAt: -1 }) // Orden descendente (el más cercano al actual)
+        .select('titulo slug portada createdAt'); // Campos necesarios
+
+        // 3. Consultar el post SIGUIENTE (misma categoría, fecha de creación MAYOR)
+        const postSiguiente = await Blog.findOne({
+            categoria: categoria,
+            createdAt: { $gt: postActual.createdAt } // Posts más recientes
+        })
+        .sort({ createdAt: 1 }) // Orden ascendente (el más cercano al actual)
+        .select('titulo slug portada createdAt'); // Campos necesarios
+
+        // 4. Devolver los resultados
+        res.status(200).send({
+            data: {
+                prevPost: postAnterior || null, // Si no hay, devuelve null
+                nextPost: postSiguiente || null
+            }
+        });
+
+    } catch (error) {
+        res.status(500).send({ message: "Error al obtener posts adyacentes" });
+    }
+};
+
+
+const listar_posts_destacados_public =async function(req, res){
+    try {
+        const destacados = await Blog.aggregate([
+          {
+            $lookup: {
+              from: "comentarios", // Colección de comentarios
+              localField: "_id",
+              foreignField: "post",
+              as: "comentarios"
+            }
+          },
+          {
+            $addFields: {
+              comentarios_count: { $size: "$comentarios" } // Solo contar comentarios
+            }
+          },
+          {
+            $sort: { 
+              comentarios_count: -1 // Ordenar únicamente por cantidad de comentarios (descendente)
+            }
+          },
+          { $limit: 3 } // Limitar a 5 posts
+        ]);
+    
+        res.status(200).send({ data: destacados });
+      } catch (error) {
+        res.status(500).send({ message: "Error al obtener posts destacados" });
+      }
+}
+
+
+//Obtener las eqtiquetas de manera general
+const get_tags_guest = async function (req, res) {
+        let etiquetas = await PostEtiqueta.find().sort({ createdAt: -1 }).limit(8);
+        res.status(200).send({ data: etiquetas });
+}
+
 const enviar_comentario_post_guest = async function (req, res) {
 
     let data = req.body;
@@ -410,5 +494,9 @@ module.exports = {
     listar_etiquetas_post_guest,
     enviar_comentario_post_guest,
     obtener_comentarios_post_guest,
+    get_tags_guest,
+    listar_tags_post_guest,
+    obtener_posts_adyacentes_guest,
+    listar_posts_destacados_public
 
 }

@@ -19,4 +19,9 @@ api.get('/listar_lamparas_guest',LamparaController.listar_lamparas_guest);
 //api.delete('/eliminar_lampara_admin/:id',auth.auth,LamparaController.eliminar_lampara_admin);
 //api.get('/obtener_lampara_admin/:id',auth.auth,LamparaController.obtener_lampara_admin);
 //Finalizan rutas lamparas
+
+//Listado de lamparas desde el cliente
+
+api.get('/listar_lamparas_public/:filtro?',LamparaController.listar_lamparas_public);
+api.get('/obtener_lampara_public/:slug',LamparaController.obtener_lampara_public);
 module.exports = api;

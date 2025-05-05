@@ -24,7 +24,6 @@ cloudinary.config(process.env.CLOUDINARY_URL)
 const listar_paneles = async function (req, res) {
         let query = { estado: true }
         var paneles = await PanelSolar.find(query);
-        console.log('listado de paneles')
         res.status(200).send({ data: paneles });
 }
 

@@ -17,6 +17,7 @@ var Calculo = require('../models/Calculo')
 var Empresa = require('../models/Empresa')
 var Oficina = require('../models/Oficina')
 var Notificacion = require('../models/Notificacion')
+var Contacto = require('../models/Contacto')
 
 
 var fs = require('fs');
@@ -199,7 +200,7 @@ const login_guest = async function (req, res) {
                     token: tokenn
                 });
             } else {
-                res.status(200).send({ message: 'La contraseña no coincide', data: undefined });
+                res.status(200).send({ message: 'Usuario o contraseña Incorrecta', data: undefined }); //La contraseña no coincide
             }
         });
         //
@@ -215,7 +216,7 @@ const login_guest = async function (req, res) {
                     token: tokenn
                 });
             } else {
-                res.status(200).send({ message: 'La contraseña no coincide', data: undefined });
+                res.status(200).send({ message: 'Usuario o contraseña Incorrecta', data: undefined }); //La contraseña no coincide
             }
         });
 
@@ -231,7 +232,7 @@ const login_guest = async function (req, res) {
                     token: tokenn
                 });
             } else {
-                res.status(200).send({ message: 'La contraseña no coincide', data: undefined });
+                res.status(200).send({ message: 'Usuario o contraseña Incorrecta', data: undefined }); //La contraseña no coincide
             }
         });
     }
@@ -575,7 +576,7 @@ const login_cliente = async function (req, res) {
                     token: tokenn
                 });
             } else {
-                res.status(200).send({ message: 'La contraseña no coincide', data: undefined });
+                res.status(200).send({ message: 'Usuario o contraseña incorrecta', data: undefined }); //La contraseña no coincide
             }
         });
 
@@ -788,7 +789,7 @@ const registro_calculo_usuario = async function (req, res) {
         let data = req.body;
         let usuario = req.user.sub
         data.usuario = usuario
-        console.log('usuario, que guarda',req.user,"datos a Guardar", req.body)
+        //console.log('usuario, que guarda',req.user,"datos a Guardar", req.body)
 
         //Inicia consulta de cada componente
         var arregloSinDuplicados = []
@@ -829,11 +830,11 @@ const registro_calculo_usuario = async function (req, res) {
             }
             res.status(200).send({ data: reg });
         } catch (error) {
-            console.log('catch error',error)
+           // console.log('catch error',error)
             res.status(200).send({ data: undefined });
         }
     } else {
-        console.log('Sin credenciales de acceso')
+       // console.log('Sin credenciales de acceso')
         res.status(500).send({ message: 'NoAccess' });
     }
 }
@@ -1834,7 +1835,7 @@ const obtener_calculo_cliente = async (req, res = response) => {
 //Peticion API PVGIS RENDIMIENTO
 
 const consulta_rendimiento_Pvgis = function (req, res) {
-    console.log('Rendiiento PvGis')
+   // console.log('Rendiiento PvGis')
     lat = req.params.lat
     lon = req.params.lon
     peakpower = req.params.peakpower
@@ -1875,7 +1876,7 @@ const consulta_rendimiento_Pvgis = function (req, res) {
 
 
 const consulta_rendimiento_Pvgis_Original = function (req, res) {
-    console.log('Rendiiento PvGis')
+    //console.log('Rendiiento PvGis')
     lat = req.params.lat
     lon = req.params.lon
     peakpower = req.params.peakpower
@@ -1918,6 +1919,16 @@ const listar_electrodomesticos_guest= async function (req, res) {
    
 }
 //Finaliza listado de electrodomesticos
+
+
+//Inicia interaccion contactenos
+const enviar_mensaje_contacto  = async function(req,res){
+    let data = req.body;
+    data.estado = 'Abierto';
+    let reg = await Contacto.create(data);
+    res.status(200).send({data:reg});
+}
+
 
 module.exports = {
 
@@ -1987,4 +1998,8 @@ module.exports = {
 
     //Listado de electrodomesticos
     listar_electrodomesticos_guest,
+
+
+    //Modulo Contactenos
+    enviar_mensaje_contacto,
 }

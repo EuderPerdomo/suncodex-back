@@ -75,4 +75,9 @@ api.get('/listar_electrodomesticos_guest',clienteController.listar_electrodomest
 
 //Consultas desde nuevo calculo, calculadora
 api.get('/listar_baterias',clienteController.listar_baterias)
+
+//Contacto
+api.post('/enviar_mensaje_contacto',clienteController.enviar_mensaje_contacto);
+
+
 module.exports = api;
