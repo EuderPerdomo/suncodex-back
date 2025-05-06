@@ -33,7 +33,6 @@ const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL)
 
 const login_admin = async function (req, res) {
-    console.log('ingreso a login')
     var data = req.body;
     var admin_arr = [];
 
