@@ -15,9 +15,13 @@ api.post('/registro_instalador_guest',clienteController.registro_instalador_gues
 api.post('/registro_cliente_empresa_guest',clienteController.registro_cliente_empresa_guest);
 
 api.post('/login_guest',clienteController.login_guest);
-//Perfil Usuario
+
+//Obtener el perfil del Usuario
 api.get('/obtener_usuario_usuario',auth.auth,clienteController.obtener_usuario_usuario);
 
+
+//Consulta cliente guest
+api.get('/obtener_cliente_guest/:id',auth.auth,clienteController.obtener_cliente_guest);
 
 
 api.post('/registro_cliente_tienda',clienteController.registro_cliente_tienda);

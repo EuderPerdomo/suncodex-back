@@ -42,35 +42,35 @@ const registro_cliente_guest = async function (req, res) {
     var clientes_arr = [];
 
     try {
-    clientes_arr = await Cliente.find({ email: data.email });
-    empresarios_arr = await Cliente_Empresarial.find({ email: data.email });
-    instaladores_arr = await Cliente_Instalador.find({ email: data.email });
+        clientes_arr = await Cliente.find({ email: data.email });
+        empresarios_arr = await Cliente_Empresarial.find({ email: data.email });
+        instaladores_arr = await Cliente_Instalador.find({ email: data.email });
 
-    if (clientes_arr.length == 0 && empresarios_arr == 0 && instaladores_arr== 0) {
-        if (data.password) {
-            bcrypt.hash(data.password, null, null, async function (err, hash) {
-                if (hash) {
-                    data.dni = '';
-                    data.password = hash;
-                    var reg = await Cliente.create(data);
-                    res.status(200).send({ data: reg });
-                } else {
-                    res.status(200).send({ message: 'ErrorServer', data: undefined });
-                }
-            })
+        if (clientes_arr.length == 0 && empresarios_arr == 0 && instaladores_arr == 0) {
+            if (data.password) {
+                bcrypt.hash(data.password, null, null, async function (err, hash) {
+                    if (hash) {
+                        data.dni = '';
+                        data.password = hash;
+                        var reg = await Cliente.create(data);
+                        res.status(200).send({ data: reg });
+                    } else {
+                        res.status(200).send({ message: 'ErrorServer', data: undefined });
+                    }
+                })
+            } else {
+                res.status(200).send({ message: 'No hay una contraseña', data: undefined });
+            }
+
+
         } else {
-            res.status(200).send({ message: 'No hay una contraseña', data: undefined });
+            res.status(200).send({ message: 'Este correo ya se encuentra registrado en nuestra base de datos', data: undefined });
         }
-
-
-    } else {
-        res.status(200).send({ message: 'Este correo ya se encuentra registrado en nuestra base de datos', data: undefined });
-    }
     } catch (error) {
-      console.log('Error al registrar cliente Guest')  
+        console.log('Error al registrar cliente Guest')
     }
 
-    
+
 }
 
 const registro_instalador_guest = async function (req, res) {
@@ -81,12 +81,12 @@ const registro_instalador_guest = async function (req, res) {
         clientes_arr = await Cliente.find({ email: data.email });
         empresarios_arr = await Cliente_Empresarial.find({ email: data.email });
         instaladores_arr = await Cliente_Instalador.find({ email: data.email });
-    
-        if (clientes_arr.length == 0 && empresarios_arr == 0 && instaladores_arr== 0) {
+
+        if (clientes_arr.length == 0 && empresarios_arr == 0 && instaladores_arr == 0) {
             if (data.password) {
                 bcrypt.hash(data.password, null, null, async function (err, hash) {
                     if (hash) {
-                       // data.dni = '';
+                        // data.dni = '';
                         data.password = hash;
                         var reg = await Cliente_Instalador.create(data);
                         res.status(200).send({ data: reg });
@@ -100,7 +100,7 @@ const registro_instalador_guest = async function (req, res) {
         } else {
             res.status(200).send({ message: 'Este correo ya se encuentra registrado en nuestra base de datos', data: undefined });
         }
-        
+
     } catch (error) {
         res.status(500).send({ message: 'Error al realizar registro' })
     }
@@ -117,7 +117,7 @@ const registro_cliente_empresa_guest = async function (req, res) {
     empresarios_arr = await Cliente_Empresarial.find({ email: data.email });
     instaladores_arr = await Cliente_Instalador.find({ email: data.email });
 
-    if (clientes_arr.length == 0 && empresarios_arr == 0 && instaladores_arr== 0) {
+    if (clientes_arr.length == 0 && empresarios_arr == 0 && instaladores_arr == 0) {
         if (data.password) {
             bcrypt.hash(data.password, null, null, async function (err, hash) {
                 if (hash) {
@@ -266,12 +266,12 @@ const listar_empresas_usuario = async function (req, res) {
 
             const empresasPropias = await Empresa.find({ _id: { $in: idsEmpresasPropias } });
             empresas = await Empresa.find({ _id: { $nin: idsEmpresasPropias } });
-            
+
 
 
         }
 
-        res.status(200).send({ todasLasEmpresas: empresas, empresasFavoritas: empresasFavoritas});
+        res.status(200).send({ todasLasEmpresas: empresas, empresasFavoritas: empresasFavoritas });
     } else {
         res.status(500).send({ message: 'NoAccess' });
     }
@@ -355,37 +355,37 @@ const anadirEmpresaFavorita_usuario = async function (req, res) {
 }
 
 
-const eliminar_empresa_favorita_usuario=async function(req,res){
+const eliminar_empresa_favorita_usuario = async function (req, res) {
 
     if (req.user) {
         let id = req.params['id'];
         if (req.user.role == 'instalador') {
 
 
-           let reg= await Cliente_Instalador.updateOne(
+            let reg = await Cliente_Instalador.updateOne(
                 { _id: req.user.sub },
                 { $pull: { empresas_favoritas: id } }
-              );
+            );
 
-         
+
             res.status(200).send({ data: reg });
 
         }
-        else if(req.user.role == 'empresa'){
+        else if (req.user.role == 'empresa') {
 
-            let reg= await Cliente_Empresarial.updateOne(
+            let reg = await Cliente_Empresarial.updateOne(
                 { _id: req.user.sub },
                 { $pull: { empresas_favoritas: id } }
-              );
+            );
 
-          
+
             res.status(200).send({ data: reg });
 
         }
 
 
 
-        
+
     } else {
         res.status(500).send({ message: 'NoAccess' });
     }
@@ -393,38 +393,22 @@ const eliminar_empresa_favorita_usuario=async function(req,res){
 }
 
 const obtener_usuario_usuario = async function (req, res) {
+    let idd = new mongoose.Types.ObjectId(req.user.sub)
 
-    idd = new mongoose.Types.ObjectId(req.user.sub)
-
-    if (req.user.role == 'empresa') {
-        empresario = await Cliente_Empresarial.find({ _id: idd });
+    if (req.user.rol == 'empresa') {
+      let empresario = await Cliente_Empresarial.find({ _id: idd });
         res.status(200).send({ data: empresario });
-    } else if (req.user.role == 'usuario_final') {
-        cliente = await Cliente.find({ _id: idd });
+    } else if (req.user.rol == 'usuario_final') {
+        let cliente = await Cliente.find({ _id: idd });
         res.status(200).send({ data: cliente });
     }
-    else if (req.user.role == 'instalador') {
-        instalador = await Cliente_Instalador.find({ _id: idd });
+    else if (req.user.rol == 'instalador') {
+        let instalador = await Cliente_Instalador.find({ _id: idd });
         res.status(200).send({ data: instalador });
     }
     else {
         res.status(500).send({ message: 'NoAccess' });
     }
-
-    /*
-        if (req.user) {
-            var id = req.params['id'];
-    
-            try {
-                var reg = await Cliente.findById({ _id: id });
-                res.status(200).send({ data: reg });
-            } catch (error) {
-                res.status(200).send({ data: undefined });
-            }
-        } else {
-            res.status(500).send({ message: 'NoAccess' });
-        }
-        */
 }
 
 
@@ -654,7 +638,7 @@ const listar_paneles = async function (req, res) {
 const listar_controladores = async function (req, res) {
 
     let reg = await Controladores_Solares.find().sort().populate('producto');
-    
+
     res.status(200).send({ data: reg });
 }
 
@@ -808,13 +792,13 @@ const registro_calculo_usuario = async function (req, res) {
                     inversor.propietario,
                     bateria.propietario,
                 ];
-           
+
                 const arregloFiltrado = propietarios.filter(objId => objId.toString() !== usuario);
                 const conjunto = new Set(arregloFiltrado.map(objId => objId.toString()));
                 arregloSinDuplicados = [...conjunto];
             }
 
-            let reg = await Calculo.create(data);        
+            let reg = await Calculo.create(data);
             if (arregloSinDuplicados.length >= 1) {
                 let notificar = await Notificacion.create({
                     calculo: reg._id,
@@ -830,11 +814,11 @@ const registro_calculo_usuario = async function (req, res) {
             }
             res.status(200).send({ data: reg });
         } catch (error) {
-           // console.log('catch error',error)
+            // console.log('catch error',error)
             res.status(200).send({ data: undefined });
         }
     } else {
-       // console.log('Sin credenciales de acceso')
+        // console.log('Sin credenciales de acceso')
         res.status(500).send({ message: 'NoAccess' });
     }
 }
@@ -843,7 +827,7 @@ const listar_calculos_usuario = async function (req, res) {
 
     if (req.user) {
 
-        id_usuario = new mongoose.Types.ObjectId(req.user.sub)
+        let id_usuario = new mongoose.Types.ObjectId(req.user.sub)
 
         let query = { $and: [{ estado: true }, { usuario: id_usuario }] }
         //let query = { estado: true,usuario:'65ce4ad275255c4750e83a28'  }
@@ -857,7 +841,7 @@ const listar_calculos_usuario = async function (req, res) {
 
 
 const actualizar_calculo_usuario = async function (req, res) {
-   
+
     if (req.user) {
         let id = req.params['id'];
         let data = req.body;
@@ -894,7 +878,7 @@ const actualizar_calculo_usuario = async function (req, res) {
 
 //Inician Notificaciones
 const listar_notificaciones_usuario = async function (req, res) {
-    
+
     if (req.user) {
         let id_usuario = req.user.sub
         //id_usuario = new mongoose.Types.ObjectId(req.user.sub)
@@ -903,7 +887,7 @@ const listar_notificaciones_usuario = async function (req, res) {
         // var calculos = await Calculo.find(query).populate('panel').populate('bateria').populate('controlador').populate('inversor')
         var notificaciones = await Notificacion.find(query)
 
-    
+
         res.status(200).send({ data: notificaciones });
     } else {
         res.status(500).send({ message: 'NoAccess' });
@@ -915,7 +899,7 @@ const listar_notificaciones_usuario = async function (req, res) {
 //Inicia prueba de consulta por medio de ubicacion y otros parametros
 const listar_inversores_usuario_ubicacion = async function (req, res) {
     if (req.user) {
-        
+
 
         //Como es usuario final la busqueda la realizo por Ubicacion
         //Punto central y amplitud del poligono
@@ -995,7 +979,7 @@ const listar_inversores_usuario_ubicacion = async function (req, res) {
                 }
 
             ]);
-     
+
             res.status(200).send({ data: inversores_oficina });
 
         }
@@ -1213,7 +1197,7 @@ const listar_cotroladores_usuario_ubicacion = async function (req, res) {
 
             ]);
             //Finaliza Oficinas
-            
+
             res.status(200).send({ data: controladores_oficina });
 
         }
@@ -1260,7 +1244,7 @@ const listar_cotroladores_usuario_ubicacion = async function (req, res) {
                 },
                 {
                     $project: {
-                        "nombreOficina":"$nombreOficina",
+                        "nombreOficina": "$nombreOficina",
                         "modelo": "$controlador.modelo",
                         "_id": "$controlador._id",
                         "peso": "$controlador.peso",
@@ -1275,7 +1259,7 @@ const listar_cotroladores_usuario_ubicacion = async function (req, res) {
                     }
                 }
             ])
-     
+
             res.status(200).send({ data: controladores });
         }
 
@@ -1355,14 +1339,14 @@ const listar_controladores_usuario_guest = async function (req, res) {
 
 //Inicia Consulta de paneles con filtros
 const listar_paneles_usuario_ubicacion = async function (req, res) {
-    
+
     if (req.user) {
         var latitud = parseFloat(req.params['latitud'])
         let longitud = parseFloat(req.params['longitud'])
         let radio = parseInt(req.params['radio'])
         let filtro = req.params['filtro']
         let rol = req.user.role
-       
+
         if (filtro == "propios") {
             id = new mongoose.Types.ObjectId(req.user.sub)
             let query = { $and: [{ estado: true }, { propietario: id }] }
@@ -1456,7 +1440,7 @@ const listar_paneles_usuario_ubicacion = async function (req, res) {
                 const clienteEmpresarial = await Cliente_Empresarial.findById(req.user.sub);
                 empresasFavoritas = clienteEmpresarial.empresas_favoritas;
             }
-           
+
 
             const paneles = await Empresa.aggregate([
                 { $match: { _id: { $in: empresasFavoritas } } },//Filtro empresas favoritas
@@ -1489,11 +1473,11 @@ const listar_paneles_usuario_ubicacion = async function (req, res) {
                     }
                 },
                 {
-                    $project: { 
-                        "nombreOficina":"$nombreOficina",
+                    $project: {
+                        "nombreOficina": "$nombreOficina",
                         "modelo": "$panel.modelo",
-                       // "_id": "$panelesData._id",                 
-                       "_id": "$panel._id", 
+                        // "_id": "$panelesData._id",                 
+                        "_id": "$panel._id",
                         "potencia": "$panel.potencia",
                         "voc": "$panel.voc",
                         "isc": "$panel.isc",
@@ -1513,7 +1497,7 @@ const listar_paneles_usuario_ubicacion = async function (req, res) {
                     }
                 }
             ])
-         
+
             res.status(200).send({ data: paneles });
         }
 
@@ -1560,7 +1544,7 @@ const listar_paneles_usuario_guest = async function (req, res) {
                 as: "panelesData"
             }
         },
-       
+
         {
             $unwind: "$panelesData"
         },
@@ -1648,7 +1632,7 @@ const listar_baterias_usuario_ubicacion = async function (req, res) {
                         as: "bateriasData"
                     }
                 },
-                
+
                 {
                     $unwind: "$bateriasData"
                 },
@@ -1675,7 +1659,7 @@ const listar_baterias_usuario_ubicacion = async function (req, res) {
                 }
 
             ]);
-          
+
             res.status(200).send({ data: baterias_oficina });
 
         }
@@ -1735,11 +1719,11 @@ const listar_baterias_usuario_ubicacion = async function (req, res) {
                     }
                 }
             ])
-        
+
             res.status(200).send({ data: baterias });
         }
 
-    } else {      
+    } else {
         res.status(500).send({ message: 'NoAccess' });
     }
 }
@@ -1747,7 +1731,7 @@ const listar_baterias_usuario_ubicacion = async function (req, res) {
 
 //inicia consulta de baterias no autenticado
 const listar_baterias_usuario_guest = async function (req, res) {
-   
+
     var latitud = parseFloat(req.params['latitud'])
     let longitud = parseFloat(req.params['longitud'])
     let radio = parseInt(req.params['radio'])
@@ -1782,7 +1766,7 @@ const listar_baterias_usuario_guest = async function (req, res) {
                 as: "bateriasData"
             }
         },
-        
+
         {
             $unwind: "$bateriasData"
         },
@@ -1835,7 +1819,7 @@ const obtener_calculo_cliente = async (req, res = response) => {
 //Peticion API PVGIS RENDIMIENTO
 
 const consulta_rendimiento_Pvgis = function (req, res) {
-   // console.log('Rendiiento PvGis')
+    // console.log('Rendiiento PvGis')
     lat = req.params.lat
     lon = req.params.lon
     peakpower = req.params.peakpower
@@ -1844,8 +1828,8 @@ const consulta_rendimiento_Pvgis = function (req, res) {
     cutoff = req.params.cutoff
 
     //Añado
-    angle=15
-    aspect=80
+    angle = 15
+    aspect = 80
 
     //Sistemas Fotovoltaicos aislados de la red
     const ruta = 'https://re.jrc.ec.europa.eu/api/SHScalc?lat=' + lat + '&lon=' + lon + '&peakpower=' + peakpower + '&batterysize=' + batterysize + '&consumptionday=' + consumptionday + '&cutoff=' + cutoff + '&outputformat=json'
@@ -1859,7 +1843,7 @@ const consulta_rendimiento_Pvgis = function (req, res) {
                 data += d
             })
             res.on("end", () => {
-               
+
                 resolve(data)
             })
         })
@@ -1895,7 +1879,7 @@ const consulta_rendimiento_Pvgis_Original = function (req, res) {
                 data += d
             })
             res.on("end", () => {
-               
+
                 resolve(data)
             })
         })
@@ -1911,22 +1895,22 @@ const consulta_rendimiento_Pvgis_Original = function (req, res) {
 }
 
 //Listado de electrodomesticos
-const listar_electrodomesticos_guest= async function (req, res) {
+const listar_electrodomesticos_guest = async function (req, res) {
 
-        let query = { estado: true }
-        var electrodomesticos = await Electrodomestico.find(query).populate('categoria');
-        res.status(200).send({ data: electrodomesticos });
-   
+    let query = { estado: true }
+    var electrodomesticos = await Electrodomestico.find(query).populate('categoria');
+    res.status(200).send({ data: electrodomesticos });
+
 }
 //Finaliza listado de electrodomesticos
 
 
 //Inicia interaccion contactenos
-const enviar_mensaje_contacto  = async function(req,res){
+const enviar_mensaje_contacto = async function (req, res) {
     let data = req.body;
     data.estado = 'Abierto';
     let reg = await Contacto.create(data);
-    res.status(200).send({data:reg});
+    res.status(200).send({ data: reg });
 }
 
 

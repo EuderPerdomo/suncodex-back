@@ -57,8 +57,6 @@ const login_admin = async function (req, res) {
     }
 }
 
-
-
 /*Metodo que lista categorias */
 const get_categorias = async function (req, res) {
     if (req.user) {
@@ -265,19 +263,6 @@ const cambiar_vs_producto_admin = async function (req, res) {
         res.status(500).send({ message: 'NoAccess' });
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* Inician Mensajes*/
